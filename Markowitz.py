@@ -66,6 +66,14 @@ class EqualWeightPortfolio:
         """
         TODO: Complete Task 1 Below
         """
+        if len(assets) > 0:
+            weight = 1 / len(assets)  # Calculate the equal weight
+            for asset in assets:
+                self.portfolio_weights.loc[:, asset] = weight  # Assign the equal weight to each asset
+        else:
+            # When no assets are available, handle appropriately
+            print("Warning: No assets available for portfolio construction.")
+            self.portfolio_weights.loc[:, :] = 0  # Set weights to zero if no assets are available
 
         """
         TODO: Complete Task 1 Above
@@ -117,6 +125,18 @@ class RiskParityPortfolio:
         """
         TODO: Complete Task 2 Below
         """
+        # Calculate rolling volatility for each asset
+        volatilities = df_returns[assets].rolling(window=self.lookback, min_periods=self.lookback).std()
+
+        # Compute the inverse of volatilities
+        inverse_volatility = 1 / volatilities
+
+        # Normalize weights to sum to 1, starting from day 52
+        normalized_weights = inverse_volatility.divide(inverse_volatility.sum(axis=1), axis=0)
+        self.portfolio_weights[assets] = normalized_weights.shift(1)  # Apply weights the day after calculating them
+
+        # Ensure weights before day 52 are set to zero as decisions cannot be made
+        self.portfolio_weights.iloc[:51] = 0
 
         """
         TODO: Complete Task 2 Above

@@ -74,7 +74,16 @@ class MyPortfolio:
         """
         TODO: Complete Task 4 Below
         """
+        # Calculate momentum as the sum of returns over the lookback period
+        momentum = self.returns[assets].rolling(window=self.lookback).sum()
 
+        # Assign weights based on momentum; higher momentum gets a higher weight
+        # Normalize the weights to ensure they sum to 1 and are all non-negative
+        positive_momentum = np.maximum(momentum, 0)  # Ensure all weights are non-negative
+        weights_sum = positive_momentum.sum(axis=1)
+        normalized_weights = positive_momentum.divide(weights_sum, axis=0)
+
+        self.portfolio_weights[assets] = normalized_weights
         """
         TODO: Complete Task 4 Above
         """
